@@ -97,7 +97,12 @@ export default function CharityGolfTournament() {
                 Join us for our annual memorial golf tournament - a 4-person scramble format. Enjoy lunch, dinner, flighted prize money, and most importantly, support families with children who have complex medical conditions. #brynleestrong
               </p>
               <button
-                onClick={() => setRegistrationStep('form')}
+                onClick={() => {
+                  setRegistrationStep('form');
+                  setTimeout(() => {
+                    document.getElementById('registration')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 0);
+                }}
                 className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
               >
                 Register Now
@@ -166,7 +171,7 @@ export default function CharityGolfTournament() {
       </section>
 
       {/* Registration Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section id="registration" className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {registrationStep === 'closed' && (
             <div className="text-center">
