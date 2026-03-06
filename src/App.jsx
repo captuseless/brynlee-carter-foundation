@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Calendar, MapPin, Users, Trophy, Heart, CheckCircle, DollarSign, Mail, Phone, User } from 'lucide-react';
 
 // Brynlee Carter Foundation Logo (base64 embedded)
@@ -33,37 +33,6 @@ export default function CharityGolfTournament() {
     // Square credentials from environment variables
   const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
   const SQUARE_LOCATION_ID = process.env.REACT_APP_SQUARE_LOCATION_ID;
-
-  useEffect(() => {
-    const initSquare = async () => {
-      if (cardMountedRef.current) return;
-      if (!window.Square) {
-        setPaymentError('Square payments failed to load. Please refresh the page.');
-        return;
-      }
-      if (!containerRef.current) {
-        console.log('container not ready yet');
-        return;
-      }
-      try {
-        const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
-        console.log('payments object:', payments);
-        const card = await payments.card();
-        console.log('card object:', card);
-        await card.attach('#card-container');
-        console.log('card attached successfully');
-        squareCardRef.current = card;
-        cardMountedRef.current = true;
-        setPaymentError('');
-      } catch (err) {
-        console.error('Square init error:', err);
-        setPaymentError('Could not load payment form. Please refresh and try again.');
-      }
-    };
-
-    const timer = setTimeout(initSquare, 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const sponsorshipLevels = {
     foursome: { name: 'Foursome (Team of 4)', price: 540, description: 'Team of 4 players - includes 2 mulligans per team', allowPayOnSite: true },
@@ -250,6 +219,22 @@ export default function CharityGolfTournament() {
                   setTimeout(() => {
                     document.getElementById('registration')?.scrollIntoView({ behavior: 'smooth' });
                   }, 0);
+                  setTimeout(async () => {
+                    if (cardMountedRef.current) return;
+                    if (!window.Square) return;
+                    try {
+                      const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+                      squarePaymentsRef.current = payments;
+                      const card = await payments.card();
+                      await card.attach('#card-container');
+                      squareCardRef.current = card;
+                      cardMountedRef.current = true;
+                      setPaymentError('');
+                    } catch (err) {
+                      console.error('Square init error:', err);
+                      setPaymentError('Could not load payment form. Please refresh and try again.');
+                    }
+                  }, 500);
                 }}
                 className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
               >
@@ -332,7 +317,25 @@ export default function CharityGolfTournament() {
                   Secure your spot in this year's tournament and make a difference in our community.
                 </p>
                 <button
-                  onClick={() => setRegistrationStep('form')}
+                  onClick={async () => {
+                    setRegistrationStep('form');
+                    setTimeout(async () => {
+                      if (cardMountedRef.current) return;
+                      if (!window.Square) return;
+                      try {
+                        const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+                        squarePaymentsRef.current = payments;
+                        const card = await payments.card();
+                        await card.attach('#card-container');
+                        squareCardRef.current = card;
+                        cardMountedRef.current = true;
+                        setPaymentError('');
+                      } catch (err) {
+                        console.error('Square init error:', err);
+                        setPaymentError('Could not load payment form. Please refresh and try again.');
+                      }
+                    }, 500);
+                  }}
                   className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-12 rounded-xl text-xl shadow-xl transform transition hover:scale-105 active:scale-95"
                 >
                   Start Registration
