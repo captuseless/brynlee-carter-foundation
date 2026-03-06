@@ -223,7 +223,7 @@ export default function CharityGolfTournament() {
           
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { number: '5', label: 'Families Supported Last Year', icon: Heart },
+              { number: '5', label: 'Families Supported', icon: Heart },
               { number: '$10K', label: 'Raised in 2025', icon: DollarSign },
               { number: '100%', label: 'Goes to Families', icon: Users }
             ].map((stat, idx) => (
