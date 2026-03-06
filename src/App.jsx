@@ -66,7 +66,8 @@ export default function CharityGolfTournament() {
       }
     };
 
-    initSquare();
+    const timer = setTimeout(initSquare, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const sponsorshipLevels = {
