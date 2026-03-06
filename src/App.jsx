@@ -28,6 +28,7 @@ export default function CharityGolfTournament() {
   const squareCardRef = useRef(null);
   const squarePaymentsRef = useRef(null);
   const cardMountedRef = useRef(false);
+  const containerRef = useRef(null);
 
     // Square credentials from environment variables
   const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
@@ -35,19 +36,13 @@ export default function CharityGolfTournament() {
 
   useEffect(() => {
     const initSquare = async () => {
-      console.log('initSquare called');
-      console.log('window.Square:', window.Square);
-      console.log('APP_ID:', SQUARE_APP_ID);
-      console.log('LOCATION_ID:', SQUARE_LOCATION_ID);
-      console.log('card-container exists:', !!document.getElementById('card-container'));
-
-      if (cardMountedRef.current) {
-        console.log('already mounted, returning');
+      if (cardMountedRef.current) return;
+      if (!window.Square) {
+        setPaymentError('Square payments failed to load. Please refresh the page.');
         return;
       }
-      if (!window.Square) {
-        console.log('window.Square not found');
-        setPaymentError('Square payments failed to load. Please refresh the page.');
+      if (!containerRef.current) {
+        console.log('container not ready yet');
         return;
       }
       try {
@@ -604,7 +599,7 @@ export default function CharityGolfTournament() {
                   </h4>
                   
                   {/* Square Card Container */}
-                  <div id="card-container" className="mb-4"></div>
+                  <div id="card-container" ref={containerRef} className="mb-4"></div>
                   
                   {paymentError && (
                     <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-4">
