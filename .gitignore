@@ -23,3 +23,5 @@ yarn-error.log*
 
 # Any other sensitive files
 square-credentials.txt
+.vercel
+.env*.local

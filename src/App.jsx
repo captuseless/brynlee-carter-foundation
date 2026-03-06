@@ -19,7 +19,8 @@ export default function CharityGolfTournament() {
     player3Name: '',
     player4Name: '',
     sponsorshipLevel: 'foursome',
-    specialRequests: ''
+    specialRequests: '',
+    paymentMethod: 'online'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -30,7 +31,7 @@ export default function CharityGolfTournament() {
   const SQUARE_LOCATION_ID = process.env.REACT_APP_SQUARE_LOCATION_ID;
 
   const sponsorshipLevels = {
-    foursome: { name: 'Foursome (Team of 4)', price: 540, description: 'Team of 4 players - includes 2 mulligans per team' },
+    foursome: { name: 'Foursome (Team of 4)', price: 540, description: 'Team of 4 players - includes 2 mulligans per team', allowPayOnSite: true },
     hole: { name: 'Hole Sponsor', price: 100, description: 'Name on sign at a tee box' },
     cart: { name: 'Cart Sponsor', price: 500, description: 'Name/Logo on all carts' },
     drink: { name: 'Drink Sponsor', price: 750, description: 'Name/Logo on all beverage stations' },
@@ -46,67 +47,73 @@ export default function CharityGolfTournament() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  setIsSubmitting(true);
-  setPaymentError('');
+    setIsSubmitting(true);
 
-  try {
-    // Initialize Square Payments
-    if (!window.Square) {
-      throw new Error('Square.js failed to load');
-    }
+    // Prepare registration data
+    const registrationData = {
+      teamName: formData.teamName,
+      captainName: formData.captainName,
+      captainEmail: formData.captainEmail,
+      captainPhone: formData.captainPhone,
+      player2Name: formData.player2Name || 'Not provided',
+      player3Name: formData.player3Name || 'Not provided',
+      player4Name: formData.player4Name || 'Not provided',
+      sponsorshipLevel: formData.sponsorshipLevel,
+      sponsorshipName: sponsorshipLevels[formData.sponsorshipLevel].name,
+      amount: totalAmount(),
+      specialRequests: formData.specialRequests || 'None',
+      paymentMethod: formData.paymentMethod,
+      paymentStatus: formData.paymentMethod === 'online' ? 'Pending' : 'Pay On-Site',
+      timestamp: new Date().toLocaleString()
+    };
 
-    const payments = window.Square.payments(
-      process.env.REACT_APP_SQUARE_APPLICATION_ID,
-      process.env.REACT_APP_SQUARE_LOCATION_ID
-    );
-    
-    // Create card payment form
-    const card = await payments.card();
-    await card.attach('#card-container');
-
-    // Tokenize card (get secure token, NOT card number)
-    const result = await card.tokenize();
-    
-    if (result.status === 'OK') {
-      // Send token to YOUR backend API
-      const response = await fetch('/api/process-payment', {
+    try {
+      // Send to Google Sheets with readable headers
+      await fetch('https://sheetdb.io/api/v1/ts1jfrfo6a9ig', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          sourceId: result.token,
-          amount: totalAmount() * 100, // Convert dollars to cents
-          registrationData: {
-            teamName: formData.teamName,
-            captainName: formData.captainName,
-            captainEmail: formData.captainEmail,
-            captainPhone: formData.captainPhone,
-            player2Name: formData.player2Name,
-            player3Name: formData.player3Name,
-            player4Name: formData.player4Name,
-            sponsorshipLevel: formData.sponsorshipLevel,
-            specialRequests: formData.specialRequests,
+          data: {
+            'Team Name': registrationData.teamName,
+            'Captain Name': registrationData.captainName,
+            'Email': registrationData.captainEmail,
+            'Phone': registrationData.captainPhone,
+            'Player 2': registrationData.player2Name,
+            'Player 3': registrationData.player3Name,
+            'Player 4': registrationData.player4Name,
+            'Sponsorship Level': registrationData.sponsorshipLevel,
+            'Sponsorship Name': registrationData.sponsorshipName,
+            'Amount': registrationData.amount,
+            'Payment Method': registrationData.paymentMethod,
+            'Payment Status': registrationData.paymentStatus,
+            'Special Requests': registrationData.specialRequests,
+            'Timestamp': registrationData.timestamp
           }
         })
       });
 
-      const data = await response.json();
+      // Save to localStorage
+      localStorage.setItem('pendingRegistration', JSON.stringify(registrationData));
 
-      if (data.success) {
+      // If paying online, redirect to Square
+      if (formData.paymentMethod === 'online') {
+        const paymentLink = sponsorshipLevels[formData.sponsorshipLevel].paymentLink;
+        window.location.href = paymentLink;
+      } else {
+        // If paying on-site, show success message
         setIsSubmitting(false);
         setSubmitSuccess(true);
         setRegistrationStep('success');
-      } else {
-        throw new Error(data.error || 'Payment failed');
       }
-    } else {
-      throw new Error('Card tokenization failed');
+
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('There was an error submitting your registration. Please contact us at 636-368-2059');
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    console.error('Payment error:', error);
-    setPaymentError(error.message || 'Payment failed. Please try again.');
-    setIsSubmitting(false);
-  }
-};
+  };
 
   const totalAmount = () => {
     const level = sponsorshipLevels[formData.sponsorshipLevel];
@@ -216,7 +223,7 @@ export default function CharityGolfTournament() {
           
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { number: '1', label: 'Family Supported Last Year', icon: Heart },
+              { number: '5', label: 'Families Supported Last Year', icon: Heart },
               { number: '$10K', label: 'Raised in 2025', icon: DollarSign },
               { number: '100%', label: 'Goes to Families', icon: Users }
             ].map((stat, idx) => (
@@ -444,6 +451,52 @@ export default function CharityGolfTournament() {
                   />
                 </div>
 
+                {/* Payment Method */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-3">
+                    Payment Method
+                  </label>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:border-teal-300 transition-all border-teal-600 bg-teal-50">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="online"
+                        checked={formData.paymentMethod === 'online'}
+                        onChange={handleInputChange}
+                        className="w-5 h-5 text-teal-600"
+                      />
+                      <div className="ml-4">
+                        <div className="font-semibold text-gray-900">Pay Online Now</div>
+                        <div className="text-sm text-gray-600">Secure payment via Square</div>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:border-teal-300 transition-all border-gray-200">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="onsite"
+                        checked={formData.paymentMethod === 'onsite'}
+                        onChange={handleInputChange}
+                        className="w-5 h-5 text-teal-600"
+                      />
+                      <div className="ml-4">
+                        <div className="font-semibold text-gray-900">Pay On-Site</div>
+                        <div className="text-sm text-gray-600">Pay by check or cash at tournament</div>
+                      </div>
+                    </label>
+                  </div>
+
+                  {formData.paymentMethod === 'onsite' && (
+                    <div className="mt-4 bg-amber-50 border-2 border-amber-200 rounded-lg p-4">
+                      <p className="text-sm text-amber-800">
+                        <strong>Please Note:</strong> Payment will be collected at registration on tournament day. Make checks payable to "Brynlee Carter Foundation".
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Total Amount */}
                 <div className="bg-gradient-to-r from-teal-50 to-fuchsia-50 p-6 rounded-xl border-2 border-teal-200">
                   <div className="flex justify-between items-center mb-4">
@@ -493,7 +546,10 @@ export default function CharityGolfTournament() {
                     disabled={isSubmitting}
                     className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
                   >
-                    {isSubmitting ? 'Processing...' : `Complete Registration - $${totalAmount().toLocaleString()}`}
+                    {isSubmitting ? 'Processing...' : formData.paymentMethod === 'online'
+                      ? `Proceed to Payment - $${totalAmount().toLocaleString()}`
+                      : `Complete Registration - $${totalAmount().toLocaleString()} (Pay On-Site)`
+                    }
                   </button>
                 </div>
               </form>
@@ -508,6 +564,16 @@ export default function CharityGolfTournament() {
               <h2 className="text-4xl font-bold text-teal-900 mb-4" style={{ fontFamily: 'Georgia, serif' }}>
                 Registration Successful!
               </h2>
+              {formData.paymentMethod === 'onsite' && (
+                <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-6 mb-6">
+                  <h3 className="font-bold text-amber-900 mb-2 text-xl">Payment: On-Site</h3>
+                  <p className="text-amber-800">
+                    Please bring payment to tournament registration on September 26, 2026.
+                    <br/>Make checks payable to: <strong>Brynlee Carter Foundation</strong>
+                    <br/>Amount due: <strong>${totalAmount()}</strong>
+                  </p>
+                </div>
+              )}
               <p className="text-xl text-gray-600 mb-6">
                 Thank you for registering for the Hope Springs Golf Classic.
               </p>
