@@ -81,12 +81,13 @@ export default function CharityGolfTournament() {
         }
 
         // Step 2: Charge via Square backend
-        const chargeResponse = await fetch('/api/square-charge', {
+        const chargeResponse = await fetch('/api/square-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             sourceId: tokenResult.token,
-            amount: baseData.amount,
+            amount: baseData.amount * 100, // convert dollars to cents
+            currency: 'USD',
             note: `${baseData.teamName} - ${baseData.sponsorshipName}`
           })
         });
