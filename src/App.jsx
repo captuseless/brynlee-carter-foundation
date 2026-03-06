@@ -33,6 +33,42 @@ export default function CharityGolfTournament() {
   const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
   const SQUARE_LOCATION_ID = process.env.REACT_APP_SQUARE_LOCATION_ID;
 
+  useEffect(() => {
+    const initSquare = async () => {
+      console.log('initSquare called');
+      console.log('window.Square:', window.Square);
+      console.log('APP_ID:', SQUARE_APP_ID);
+      console.log('LOCATION_ID:', SQUARE_LOCATION_ID);
+      console.log('card-container exists:', !!document.getElementById('card-container'));
+
+      if (cardMountedRef.current) {
+        console.log('already mounted, returning');
+        return;
+      }
+      if (!window.Square) {
+        console.log('window.Square not found');
+        setPaymentError('Square payments failed to load. Please refresh the page.');
+        return;
+      }
+      try {
+        const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+        console.log('payments object:', payments);
+        const card = await payments.card();
+        console.log('card object:', card);
+        await card.attach('#card-container');
+        console.log('card attached successfully');
+        squareCardRef.current = card;
+        cardMountedRef.current = true;
+        setPaymentError('');
+      } catch (err) {
+        console.error('Square init error:', err);
+        setPaymentError('Could not load payment form. Please refresh and try again.');
+      }
+    };
+
+    initSquare();
+  }, []);
+
   const sponsorshipLevels = {
     foursome: { name: 'Foursome (Team of 4)', price: 540, description: 'Team of 4 players - includes 2 mulligans per team', allowPayOnSite: true },
     hole: { name: 'Hole Sponsor', price: 100, description: 'Name on sign at a tee box' },
