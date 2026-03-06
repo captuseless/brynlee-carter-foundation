@@ -15,11 +15,19 @@ export default function CharityGolfTournament() {
     captainName: '',
     captainEmail: '',
     captainPhone: '',
+    player2Name: '',
+    player3Name: '',
+    player4Name: '',
     sponsorshipLevel: 'foursome',
     specialRequests: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+
+    // Square credentials from environment variables
+  const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
+  const SQUARE_LOCATION_ID = process.env.REACT_APP_SQUARE_LOCATION_ID;
 
   const sponsorshipLevels = {
     foursome: { name: 'Foursome (Team of 4)', price: 540, description: 'Team of 4 players - includes 2 mulligans per team' },
@@ -38,15 +46,67 @@ export default function CharityGolfTournament() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+  setIsSubmitting(true);
+  setPaymentError('');
+
+  try {
+    // Initialize Square Payments
+    if (!window.Square) {
+      throw new Error('Square.js failed to load');
+    }
+
+    const payments = window.Square.payments(
+      process.env.REACT_APP_SQUARE_APPLICATION_ID,
+      process.env.REACT_APP_SQUARE_LOCATION_ID
+    );
     
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Create card payment form
+    const card = await payments.card();
+    await card.attach('#card-container');
+
+    // Tokenize card (get secure token, NOT card number)
+    const result = await card.tokenize();
     
+    if (result.status === 'OK') {
+      // Send token to YOUR backend API
+      const response = await fetch('/api/process-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceId: result.token,
+          amount: totalAmount() * 100, // Convert dollars to cents
+          registrationData: {
+            teamName: formData.teamName,
+            captainName: formData.captainName,
+            captainEmail: formData.captainEmail,
+            captainPhone: formData.captainPhone,
+            player2Name: formData.player2Name,
+            player3Name: formData.player3Name,
+            player4Name: formData.player4Name,
+            sponsorshipLevel: formData.sponsorshipLevel,
+            specialRequests: formData.specialRequests,
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsSubmitting(false);
+        setSubmitSuccess(true);
+        setRegistrationStep('success');
+      } else {
+        throw new Error(data.error || 'Payment failed');
+      }
+    } else {
+      throw new Error('Card tokenization failed');
+    }
+  } catch (error) {
+    console.error('Payment error:', error);
+    setPaymentError(error.message || 'Payment failed. Please try again.');
     setIsSubmitting(false);
-    setSubmitSuccess(true);
-    setRegistrationStep('success');
-  };
+  }
+};
 
   const totalAmount = () => {
     const level = sponsorshipLevels[formData.sponsorshipLevel];
@@ -306,6 +366,69 @@ export default function CharityGolfTournament() {
                     />
                   </div>
                 </div>
+                
+                {/* Additional Player Names (Optional) */}
+                {formData.sponsorshipLevel === 'foursome' && (
+                  <div className="col-span-2">
+                    <div className="bg-teal-50 border-2 border-teal-200 rounded-xl p-6">
+                      <h4 className="font-bold text-teal-900 mb-4 flex items-center">
+                        <Users className="w-5 h-5 mr-2" />
+                        Additional Team Members (Optional)
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        You can add your other team members now, or send us their names later.
+                      </p>
+                      
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                            Player 2 Name
+                          </label>
+                          <input
+                            type="text"
+                            name="player2Name"
+                            value={formData.player2Name}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-teal-500 focus:outline-none"
+                            placeholder="Optional"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                            Player 3 Name
+                          </label>
+                          <input
+                            type="text"
+                            name="player3Name"
+                            value={formData.player3Name}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-teal-500 focus:outline-none"
+                            placeholder="Optional"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                            Player 4 Name
+                          </label>
+                          <input
+                            type="text"
+                            name="player4Name"
+                            value={formData.player4Name}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-teal-500 focus:outline-none"
+                            placeholder="Optional"
+                          />
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-gray-500 mt-3">
+                        Note: Player 1 is the team captain listed above. You can leave these blank and email the names to us later at Chad Carter: 636-368-2059
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -334,18 +457,27 @@ export default function CharityGolfTournament() {
                   </p>
                 </div>
 
-                {/* Payment Note */}
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
-                  <div className="flex items-start">
-                    <DollarSign className="w-6 h-6 text-blue-600 mr-3 mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-blue-900 mb-2">Payment Processing</h4>
-                      <p className="text-sm text-blue-800">
-                        This is a demonstration site. In production, this would integrate with Stripe, Square, or PayPal for secure payment processing. Your registration information would be saved and you would be redirected to a secure payment page.
-                      </p>
+                {/* Payment Card */}
+                <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4 flex items-center">
+                    <DollarSign className="w-6 h-6 text-teal-600 mr-2" />
+                    Payment Information
+                  </h4>
+                  
+                  {/* Square Card Container */}
+                  <div id="card-container" className="mb-4"></div>
+                  
+                  {paymentError && (
+                    <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-4">
+                      <p className="text-red-800 text-sm">{paymentError}</p>
                     </div>
-                  </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-600">
+                    Secure payment processing powered by Square. Your card information is encrypted and secure.
+                  </p>
                 </div>
+
 
                 {/* Submit Button */}
                 <div className="flex gap-4">
@@ -379,6 +511,39 @@ export default function CharityGolfTournament() {
               <p className="text-xl text-gray-600 mb-6">
                 Thank you for registering for the Hope Springs Golf Classic.
               </p>
+              {/* Team Roster */}
+                {(formData.player2Name || formData.player3Name || formData.player4Name) && (
+                  <div className="bg-teal-50 border-2 border-teal-200 rounded-xl p-6 mb-6 text-left max-w-md mx-auto">
+                    <h3 className="font-bold text-teal-900 mb-3 flex items-center">
+                      <Users className="w-5 h-5 mr-2" />
+                      Team Roster
+                    </h3>
+                    <ul className="space-y-2">
+                      <li className="flex items-center text-gray-700">
+                        <span className="font-semibold mr-2">Player 1 (Captain):</span>
+                        {formData.captainName}
+                      </li>
+                      {formData.player2Name && (
+                        <li className="flex items-center text-gray-700">
+                          <span className="font-semibold mr-2">Player 2:</span>
+                          {formData.player2Name}
+                        </li>
+                      )}
+                      {formData.player3Name && (
+                        <li className="flex items-center text-gray-700">
+                          <span className="font-semibold mr-2">Player 3:</span>
+                          {formData.player3Name}
+                        </li>
+                      )}
+                      {formData.player4Name && (
+                        <li className="flex items-center text-gray-700">
+                          <span className="font-semibold mr-2">Player 4:</span>
+                          {formData.player4Name}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               <div className="bg-gray-50 p-6 rounded-xl mb-8 text-left max-w-md mx-auto">
                 <h3 className="font-bold text-gray-800 mb-3">What's Next:</h3>
                 <ul className="space-y-2 text-gray-700">
@@ -404,6 +569,9 @@ export default function CharityGolfTournament() {
                     captainName: '',
                     captainEmail: '',
                     captainPhone: '',
+                    player2Name: '',
+                    player3Name: '',
+                    player4Name: '',
                     sponsorshipLevel: 'foursome',
                     specialRequests: ''
                   });

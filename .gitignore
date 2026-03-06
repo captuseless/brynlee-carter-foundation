@@ -19,3 +19,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# Any other sensitive files
+square-credentials.txt
