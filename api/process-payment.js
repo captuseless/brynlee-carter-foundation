@@ -3,7 +3,7 @@ import { Client, Environment } from 'square';
 
 // Initialize Square client
 const client = new Client({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN,
+  accessToken: process.env.SQAURE_ACCESS_TOKEN,
   environment: Environment.Production, // or Environment.Sandbox for testing
 });
 
