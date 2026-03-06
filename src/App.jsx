@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, MapPin, Users, Trophy, Heart, CheckCircle, DollarSign, Mail, Phone, User } from 'lucide-react';
 
 // Brynlee Carter Foundation Logo (base64 embedded)
@@ -25,6 +25,9 @@ export default function CharityGolfTournament() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const squareCardRef = useRef(null);
+  const squarePaymentsRef = useRef(null);
+  const cardMountedRef = useRef(false);
 
     // Square credentials from environment variables
   const SQUARE_APP_ID = process.env.REACT_APP_SQUARE_APPLICATION_ID;
@@ -50,7 +53,7 @@ export default function CharityGolfTournament() {
     setIsSubmitting(true);
 
     // Prepare registration data
-    const registrationData = {
+    const baseData = {
       teamName: formData.teamName,
       captainName: formData.captainName,
       captainEmail: formData.captainEmail,
@@ -63,46 +66,92 @@ export default function CharityGolfTournament() {
       amount: totalAmount(),
       specialRequests: formData.specialRequests || 'None',
       paymentMethod: formData.paymentMethod,
-      paymentStatus: formData.paymentMethod === 'online' ? 'Pending' : 'Pay On-Site',
       timestamp: new Date().toLocaleString()
     };
 
     try {
-      // Send to Google Sheets with readable headers
-      await fetch('https://sheetdb.io/api/v1/ts1jfrfo6a9ig', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: {
-            'Team Name': registrationData.teamName,
-            'Captain Name': registrationData.captainName,
-            'Email': registrationData.captainEmail,
-            'Phone': registrationData.captainPhone,
-            'Player 2': registrationData.player2Name,
-            'Player 3': registrationData.player3Name,
-            'Player 4': registrationData.player4Name,
-            'Sponsorship Level': registrationData.sponsorshipLevel,
-            'Sponsorship Name': registrationData.sponsorshipName,
-            'Amount': registrationData.amount,
-            'Payment Method': registrationData.paymentMethod,
-            'Payment Status': registrationData.paymentStatus,
-            'Special Requests': registrationData.specialRequests,
-            'Timestamp': registrationData.timestamp
-          }
-        })
-      });
-
-      // Save to localStorage
-      localStorage.setItem('pendingRegistration', JSON.stringify(registrationData));
-
-      // If paying online, redirect to Square
       if (formData.paymentMethod === 'online') {
-        const paymentLink = sponsorshipLevels[formData.sponsorshipLevel].paymentLink;
-        window.location.href = paymentLink;
+        // Step 1: Tokenize card via Square Web Payments SDK
+        const tokenResult = await squareCardRef.current.tokenize();
+        if (tokenResult.status !== 'OK') {
+          setPaymentError(tokenResult.errors?.[0]?.message || 'Card tokenization failed');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Step 2: Charge via Square backend
+        const chargeResponse = await fetch('/api/square-charge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceId: tokenResult.token,
+            amount: baseData.amount,
+            note: `${baseData.teamName} - ${baseData.sponsorshipName}`
+          })
+        });
+        const chargeResult = await chargeResponse.json();
+
+        if (!chargeResult.success) {
+          setPaymentError(chargeResult.error || 'Payment failed. Please try again.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Step 3: Write to Sheets only after confirmed charge
+        await fetch('https://sheetdb.io/api/v1/ts1jfrfo6a9ig', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data: {
+              'Team Name': baseData.teamName,
+              'Captain Name': baseData.captainName,
+              'Email': baseData.captainEmail,
+              'Phone': baseData.captainPhone,
+              'Player 2': baseData.player2Name,
+              'Player 3': baseData.player3Name,
+              'Player 4': baseData.player4Name,
+              'Sponsorship Level': baseData.sponsorshipLevel,
+              'Sponsorship Name': baseData.sponsorshipName,
+              'Amount': baseData.amount,
+              'Payment Method': baseData.paymentMethod,
+              'Payment Status': 'Paid',
+              'Square Payment ID': chargeResult.paymentId || '',
+              'Special Requests': baseData.specialRequests,
+              'Timestamp': baseData.timestamp
+            }
+          })
+        });
+
+        setIsSubmitting(false);
+        setSubmitSuccess(true);
+        setRegistrationStep('success');
+
       } else {
-        // If paying on-site, show success message
+        // Pay on-site: write to Sheets directly
+        await fetch('https://sheetdb.io/api/v1/ts1jfrfo6a9ig', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data: {
+              'Team Name': baseData.teamName,
+              'Captain Name': baseData.captainName,
+              'Email': baseData.captainEmail,
+              'Phone': baseData.captainPhone,
+              'Player 2': baseData.player2Name,
+              'Player 3': baseData.player3Name,
+              'Player 4': baseData.player4Name,
+              'Sponsorship Level': baseData.sponsorshipLevel,
+              'Sponsorship Name': baseData.sponsorshipName,
+              'Amount': baseData.amount,
+              'Payment Method': baseData.paymentMethod,
+              'Payment Status': 'Pay On-Site',
+              'Square Payment ID': '',
+              'Special Requests': baseData.specialRequests,
+              'Timestamp': baseData.timestamp
+            }
+          })
+        });
+
         setIsSubmitting(false);
         setSubmitSuccess(true);
         setRegistrationStep('success');
