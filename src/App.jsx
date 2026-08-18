@@ -659,7 +659,7 @@ export default function CharityGolfTournament() {
                 </div>
               )}
               <p className="text-xl text-gray-600 mb-6">
-                Thank you for registering for the Hope Springs Golf Classic.
+                Thank you for registering for the Brynlee Carter Foundation Golf Tournament.
               </p>
               {/* Team Roster */}
                 {(formData.player2Name || formData.player3Name || formData.player4Name) && (
