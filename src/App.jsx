@@ -41,7 +41,8 @@ export default function CharityGolfTournament() {
     drink: { name: 'Drink Sponsor', price: 750, description: 'Name/Logo on all beverage stations' },
     silver: { name: 'Silver Sponsor', price: 1000, description: 'Includes 4-some, Hole Sponsor' },
     gold: { name: 'Gold Sponsor', price: 1500, description: 'Includes 4-some, Hole Sponsor, and Name on Towel' },
-    platinum: { name: 'Platinum Sponsor', price: 2500, description: 'Includes 4-some, Hole Sponsor, and Logo on Towel' }
+    platinum: { name: 'Platinum Sponsor', price: 2500, description: 'Includes 4-some, Hole Sponsor, and Logo on Towel' },
+    dinner: { name: 'Dinner Only', price: 25, description: 'Dinner ticket only - no golf required', allowPayOnSite: true }
   };
 
   const handleInputChange = (e) => {
@@ -392,6 +393,7 @@ export default function CharityGolfTournament() {
 
                 {/* Contact Information */}
                 <div className="grid md:grid-cols-2 gap-6">
+                  {formData.sponsorshipLevel !== 'dinner' && (
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       <User className="w-4 h-4 inline mr-2" />
@@ -407,6 +409,7 @@ export default function CharityGolfTournament() {
                       placeholder="Smith Industries"
                     />
                   </div>
+                  )}
                   
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
