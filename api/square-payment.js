@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const response = await client.payments.createPayment({
+    const response = await client.paymentsApi.createPayment({
       sourceId,
       idempotencyKey: randomUUID(),
       amountMoney: {
@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
       locationId: process.env.SQUARE_LOCATION_ID,
     });
 
-    const payment = response.payment;
+    const payment = response.result.payment;
     return res.status(200).json({
       success: true,
       paymentId: payment.id,
