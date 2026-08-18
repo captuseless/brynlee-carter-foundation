@@ -1,12 +1,12 @@
 // api/square-payment.js
 // Vercel serverless function — place this at /api/square-payment.js in your project root
 
-const { Client, Environment } = require('square');
+const { SquareClient, SquareEnvironment } = require('square');
 const { randomUUID } = require('crypto');
 
-const client = new Client({
-  accessToken: process.env.SQAURE_ACCESS_TOKEN,
-  environment: Environment.Production, // Change to Environment.Sandbox for testing
+const client = new SquareClient({
+  token: process.env.SQAURE_ACCESS_TOKEN,
+  environment: SquareEnvironment.Production, // Change to SquareEnvironment.Sandbox for testing
 });
 
 module.exports = async function handler(req, res) {
@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const response = await client.paymentsApi.createPayment({
+    const response = await client.payments.createPayment({
       sourceId,
       idempotencyKey: randomUUID(),
       amountMoney: {
@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
       locationId: process.env.SQUARE_LOCATION_ID,
     });
 
-    const payment = response.result.payment;
+    const payment = response.payment;
     return res.status(200).json({
       success: true,
       paymentId: payment.id,

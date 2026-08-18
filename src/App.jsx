@@ -393,11 +393,11 @@ export default function CharityGolfTournament() {
 
                 {/* Contact Information */}
                 <div className="grid md:grid-cols-2 gap-6">
-                  {formData.sponsorshipLevel !== 'dinner' && (
+                  {!['dinner', 'hole'].includes(formData.sponsorshipLevel) && (
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       <User className="w-4 h-4 inline mr-2" />
-                      Team/Contact Name *
+                      {formData.sponsorshipLevel === 'foursome' ? 'Team/Contact Name *' : 'Company *'}
                     </label>
                     <input
                       type="text"
