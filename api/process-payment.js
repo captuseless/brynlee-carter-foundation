@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
         currency: 'USD',
       },
       locationId: process.env.SQUARE_LOCATION_ID,
-      note: `Golf Tournament - ${registrationData.teamName}`,
+      note: registrationData.captainName,
       buyerEmailAddress: registrationData.captainEmail,
     });
 

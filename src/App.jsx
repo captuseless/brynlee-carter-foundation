@@ -89,7 +89,7 @@ export default function CharityGolfTournament() {
             sourceId: tokenResult.token,
             amount: baseData.amount * 100, // convert dollars to cents
             currency: 'USD',
-            note: `${baseData.teamName} - ${baseData.sponsorshipName}`
+            note: baseData.captainName
           })
         });
         const chargeResult = await chargeResponse.json();
