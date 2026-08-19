@@ -45,9 +45,16 @@ export default function CharityGolfTournament() {
     dinner: { name: 'Dinner Only', price: 25, description: 'Dinner ticket only - no golf required', allowPayOnSite: true }
   };
 
+  const contactSectionRef = useRef(null);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'sponsorshipLevel') {
+      setTimeout(() => {
+        contactSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -392,7 +399,7 @@ export default function CharityGolfTournament() {
                 </div>
 
                 {/* Contact Information */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div ref={contactSectionRef} className="grid md:grid-cols-2 gap-6">
                   {!['dinner', 'hole'].includes(formData.sponsorshipLevel) && (
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
