@@ -57,6 +57,29 @@ export default function CharityGolfTournament() {
     }
   };
 
+  const initSquareCard = async () => {
+    if (cardMountedRef.current) return;
+    if (!window.Square) return;
+    try {
+      const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+      squarePaymentsRef.current = payments;
+      const card = await payments.card();
+      await card.attach('#card-container');
+      squareCardRef.current = card;
+      cardMountedRef.current = true;
+      setPaymentError('');
+    } catch (err) {
+      console.error('Square init error:', err);
+      setPaymentError('Could not load payment form. Please refresh and try again.');
+    }
+  };
+
+  const handleSelectSponsor = (levelKey) => {
+    setFormData(prev => ({ ...prev, sponsorshipLevel: levelKey }));
+    setRegistrationStep('form');
+    setTimeout(() => initSquareCard(), 500);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -326,24 +349,9 @@ export default function CharityGolfTournament() {
                   Secure your spot in this year's tournament and make a difference in our community.
                 </p>
                 <button
-                  onClick={async () => {
+                  onClick={() => {
                     setRegistrationStep('form');
-                    setTimeout(async () => {
-                      if (cardMountedRef.current) return;
-                      if (!window.Square) return;
-                      try {
-                        const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
-                        squarePaymentsRef.current = payments;
-                        const card = await payments.card();
-                        await card.attach('#card-container');
-                        squareCardRef.current = card;
-                        cardMountedRef.current = true;
-                        setPaymentError('');
-                      } catch (err) {
-                        console.error('Square init error:', err);
-                        setPaymentError('Could not load payment form. Please refresh and try again.');
-                      }
-                    }, 500);
+                    setTimeout(() => initSquareCard(), 500);
                   }}
                   className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-12 rounded-xl text-xl shadow-xl transform transition hover:scale-105 active:scale-95"
                 >
@@ -755,14 +763,14 @@ export default function CharityGolfTournament() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { title: 'Hole Sponsor', benefits: ['Name on sign at tee box', 'Recognition in program', 'Social media mention'], price: '$100' },
-              { title: 'Cart Sponsor', benefits: ['Name/Logo on all carts', 'Premium visibility', 'Event signage'], price: '$500' },
-              { title: 'Drink Sponsor', benefits: ['Name/Logo on beverage stations', 'High traffic visibility', 'Program recognition'], price: '$750' },
-              { title: 'Silver Sponsor', benefits: ['Includes 4-some entry', 'Hole Sponsor included', 'Premium recognition'], price: '$1,000' },
-              { title: 'Gold Sponsor', benefits: ['Includes 4-some entry', 'Hole Sponsor included', 'Name on towel'], price: '$1,500' },
-              { title: 'Platinum Sponsor', benefits: ['Includes 4-some entry', 'Hole Sponsor included', 'Logo on towel'], price: '$2,500' }
+              { title: 'Hole Sponsor', levelKey: 'hole', benefits: ['Name on sign at tee box', 'Recognition in program', 'Social media mention'], price: '$100' },
+              { title: 'Cart Sponsor', levelKey: 'cart', benefits: ['Name/Logo on all carts', 'Premium visibility', 'Event signage'], price: '$500' },
+              { title: 'Drink Sponsor', levelKey: 'drink', benefits: ['Name/Logo on beverage stations', 'High traffic visibility', 'Program recognition'], price: '$750' },
+              { title: 'Silver Sponsor', levelKey: 'silver', benefits: ['Includes 4-some entry', 'Hole Sponsor included', 'Premium recognition'], price: '$1,000' },
+              { title: 'Gold Sponsor', levelKey: 'gold', benefits: ['Includes 4-some entry', 'Hole Sponsor included', 'Name on towel'], price: '$1,500' },
+              { title: 'Platinum Sponsor', levelKey: 'platinum', benefits: ['Includes 4-some entry', 'Hole Sponsor included', 'Logo on towel'], price: '$2,500' }
             ].map((sponsor, idx) => (
-              <div key={idx} className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 hover:bg-white/20 transition-all">
+              <div key={idx} onClick={() => handleSelectSponsor(sponsor.levelKey)} className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 hover:bg-white/20 transition-all cursor-pointer hover:scale-105 transform">
                 <h3 className="text-2xl font-bold mb-2 text-fuchsia-300">{sponsor.title}</h3>
                 <div className="text-3xl font-bold mb-4">{sponsor.price}</div>
                 <ul className="space-y-2">
