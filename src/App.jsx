@@ -832,7 +832,7 @@ export default function CharityGolfTournament() {
             </div>
           </div>
           <div className="border-t border-teal-700 pt-8 text-center text-teal-300">
-            <p>&copy; 2026 Brynlee Carter Foundation. All rights reserved. Tax ID: 12-3456789</p>
+            <p>&copy; 2026 Brynlee Carter Foundation. All rights reserved. Tax ID: 83-1361560</p>
           </div>
         </div>
       </footer>
