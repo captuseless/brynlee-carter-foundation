@@ -408,7 +408,7 @@ export default function CharityGolfTournament() {
 
                 {/* Contact Information */}
                 <div ref={contactSectionRef} className="grid md:grid-cols-2 gap-6">
-                  {!['dinner', 'hole'].includes(formData.sponsorshipLevel) && (
+                  {formData.sponsorshipLevel !== 'dinner' && (
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       <User className="w-4 h-4 inline mr-2" />
@@ -608,9 +608,11 @@ export default function CharityGolfTournament() {
                       ${totalAmount().toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Includes: 4-person scramble, lunch, dinner, flighted prize money, and 2 mulligans per team (foursome entry)
-                  </p>
+                  {formData.sponsorshipLevel === 'foursome' && (
+                    <p className="text-sm text-gray-600">
+                      Includes: 4-person scramble, lunch, dinner, flighted prize money, and 2 mulligans per team (foursome entry)
+                    </p>
+                  )}
                 </div>
 
                 {/* Payment Card */}
