@@ -222,7 +222,7 @@ export default function CharityGolfTournament() {
             </div>
             <div className="flex items-center space-x-2 flex-shrink-0">
               <button
-                onClick={() => window.open('https://square.link/u/b83OuHC3', 'donate', 'width=480,height=700,scrollbars=yes,resizable=yes')}
+                onClick={() => window.open('https://square.link/u/b83OuHC3', '_blank', 'width=480,height=700,scrollbars=yes,resizable=yes')}
                 className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
               >
                 <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -281,7 +281,7 @@ export default function CharityGolfTournament() {
                   Register Now
                 </button>
                 <button
-                  onClick={() => window.open('https://square.link/u/b83OuHC3', 'donate', 'width=480,height=700,scrollbars=yes,resizable=yes')}
+                  onClick={() => window.open('https://square.link/u/b83OuHC3', '_blank', 'width=480,height=700,scrollbars=yes,resizable=yes')}
                   className="inline-flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95 border-2 border-white/40"
                 >
                   <Heart className="w-5 h-5 text-fuchsia-300" />
