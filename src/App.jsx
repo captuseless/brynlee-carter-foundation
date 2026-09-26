@@ -207,49 +207,49 @@ export default function CharityGolfTournament() {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-fuchsia-50">
       {/* Header */}
       <header className="bg-gradient-to-r from-teal-700 to-teal-500 text-white shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="bg-white p-2 rounded-xl shadow-lg">
-                <TurtleLogo className="w-16 h-16" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="bg-white p-1.5 sm:p-2 rounded-xl shadow-lg flex-shrink-0">
+                <TurtleLogo className="w-10 h-10 sm:w-16 sm:h-16" />
               </div>
-              <div>
-                <h1 className="text-4xl font-bold tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl lg:text-4xl font-bold tracking-tight leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
                   Brynlee Carter Memorial Golf Tournament
                 </h1>
-                <p className="text-teal-100 mt-1 text-lg">Supporting Our Community, One Swing at a Time</p>
+                <p className="text-teal-100 mt-0.5 text-xs sm:text-base hidden sm:block">Supporting Our Community, One Swing at a Time</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <button
                 onClick={() => window.open('https://square.link/u/b83OuHC3', 'donate', 'width=480,height=700,scrollbars=yes,resizable=yes')}
-                className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center space-x-2"
+                className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
               >
-                <Heart className="w-5 h-5" />
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Donate</span>
               </button>
-              <TurtleLogo className="w-14 h-14 opacity-90" />
+              <TurtleLogo className="w-10 h-10 sm:w-14 sm:h-14 opacity-90 hidden sm:block" />
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-teal-800 to-teal-600 text-white py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-teal-800 to-teal-600 text-white py-10 sm:py-20">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
         }}></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>
               <div className="inline-block bg-fuchsia-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-lg">
                 Annual Memorial Golf Tournament
               </div>
-              <h2 className="text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+              <h2 className="text-3xl sm:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
                 Join Us for a Day of <span className="text-fuchsia-400">Golf & Giving</span>
               </h2>
-              <p className="text-xl text-teal-100 mb-8 leading-relaxed">
+              <p className="text-base sm:text-xl text-teal-100 mb-8 leading-relaxed">
                 Join us for our annual memorial golf tournament - a 4-person scramble format. Enjoy lunch, dinner, flighted prize money, and most importantly, support families with children who have complex medical conditions. #brynleestrong
               </p>
               <div className="flex flex-wrap gap-4">
@@ -290,7 +290,7 @@ export default function CharityGolfTournament() {
               </div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 shadow-2xl">
+            <div className="bg-white/10 backdrop-blur-md p-5 sm:p-8 rounded-2xl border border-white/20 shadow-2xl">
               <h3 className="text-2xl font-bold mb-6 flex items-center">
                 <Calendar className="w-6 h-6 mr-3 text-fuchsia-400" />
                 Event Details
@@ -378,7 +378,7 @@ export default function CharityGolfTournament() {
           )}
 
           {registrationStep === 'form' && (
-            <div className="bg-white p-10 rounded-3xl shadow-2xl border-2 border-teal-200">
+            <div className="bg-white p-5 sm:p-10 rounded-3xl shadow-2xl border-2 border-teal-200">
               <h2 className="text-3xl font-bold text-teal-900 mb-8 flex items-center" style={{ fontFamily: 'Georgia, serif' }}>
                 <CheckCircle className="w-8 h-8 mr-3 text-teal-600" />
                 Tournament Registration
@@ -680,7 +680,7 @@ export default function CharityGolfTournament() {
           )}
 
           {registrationStep === 'success' && (
-            <div className="bg-white p-12 rounded-3xl shadow-2xl border-2 border-teal-200 text-center">
+            <div className="bg-white p-6 sm:p-12 rounded-3xl shadow-2xl border-2 border-teal-200 text-center">
               <div className="bg-teal-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-16 h-16 text-teal-600" />
               </div>
