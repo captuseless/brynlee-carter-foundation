@@ -561,7 +561,7 @@ export default function CharityGolfTournament() {
                     Payment Method
                   </label>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:border-teal-300 transition-all border-teal-600 bg-teal-50">
+                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer hover:border-teal-300 transition-all ${formData.paymentMethod === 'online' ? 'border-teal-600 bg-teal-50' : 'border-gray-200'}`}>
                       <input
                         type="radio"
                         name="paymentMethod"
@@ -576,7 +576,7 @@ export default function CharityGolfTournament() {
                       </div>
                     </label>
 
-                    <label className="flex items-center p-4 border-2 rounded-xl cursor-pointer hover:border-teal-300 transition-all border-gray-200">
+                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer hover:border-teal-300 transition-all ${formData.paymentMethod === 'onsite' ? 'border-teal-600 bg-teal-50' : 'border-gray-200'}`}>
                       <input
                         type="radio"
                         name="paymentMethod"
@@ -617,25 +617,27 @@ export default function CharityGolfTournament() {
                 </div>
 
                 {/* Payment Card */}
+                {formData.paymentMethod === 'online' && (
                 <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6">
                   <h4 className="font-bold text-gray-900 mb-4 flex items-center">
                     <DollarSign className="w-6 h-6 text-teal-600 mr-2" />
                     Payment Information
                   </h4>
-                  
+
                   {/* Square Card Container */}
                   <div id="card-container" ref={containerRef} className="mb-4"></div>
-                  
+
                   {paymentError && (
                     <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-4">
                       <p className="text-red-800 text-sm">{paymentError}</p>
                     </div>
                   )}
-                  
+
                   <p className="text-xs text-gray-600">
                     Secure payment processing powered by Square. Your card information is encrypted and secure.
                   </p>
                 </div>
+                )}
 
 
                 {/* Submit Button */}
@@ -745,7 +747,8 @@ export default function CharityGolfTournament() {
                     player3Name: '',
                     player4Name: '',
                     sponsorshipLevel: 'foursome',
-                    specialRequests: ''
+                    specialRequests: '',
+                    paymentMethod: 'online'
                   });
                   setSubmitSuccess(false);
                 }}
