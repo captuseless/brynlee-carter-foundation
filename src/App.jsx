@@ -221,8 +221,16 @@ export default function CharityGolfTournament() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <a
+                href="https://square.link/u/b83OuHC3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center space-x-2"
+              >
+                <Heart className="w-5 h-5" />
+                <span>Donate</span>
+              </a>
               <TurtleLogo className="w-14 h-14 opacity-90" />
-              <Heart className="w-12 h-12 text-fuchsia-300 animate-pulse" />
             </div>
           </div>
         </div>
@@ -273,6 +281,15 @@ export default function CharityGolfTournament() {
               >
                 Register Now
               </button>
+              <a
+                href="https://square.link/u/b83OuHC3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95 border-2 border-white/40"
+              >
+                <Heart className="w-5 h-5 text-fuchsia-300" />
+                <span>Make a Donation</span>
+              </a>
             </div>
             
             <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 shadow-2xl">
@@ -833,7 +850,7 @@ export default function CharityGolfTournament() {
                 <li><a href="#" className="hover:text-white transition">About Us</a></li>
                 <li><a href="#" className="hover:text-white transition">Our Impact</a></li>
                 <li><a href="#" className="hover:text-white transition">Past Tournaments</a></li>
-                <li><a href="#" className="hover:text-white transition">Donate</a></li>
+                <li><a href="https://square.link/u/b83OuHC3" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Donate</a></li>
               </ul>
             </div>
           </div>
