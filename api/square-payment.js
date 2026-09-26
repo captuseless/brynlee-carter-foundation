@@ -14,7 +14,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { sourceId, amount, currency = 'USD', note } = req.body;
+  const { sourceId, amount, currency = 'USD', note, buyerEmail } = req.body;
 
   if (!sourceId || !amount) {
     return res.status(400).json({ error: 'Missing sourceId or amount' });
@@ -29,6 +29,7 @@ module.exports = async function handler(req, res) {
         currency,
       },
       note: note || 'Brynlee Carter Memorial Golf Tournament',
+      buyerEmailAddress: buyerEmail || undefined,
       locationId: process.env.SQUARE_LOCATION_ID,
     });
 
