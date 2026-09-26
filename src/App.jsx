@@ -221,15 +221,13 @@ export default function CharityGolfTournament() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <a
-                href="https://square.link/u/b83OuHC3"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => window.open('https://square.link/u/b83OuHC3', 'donate', 'width=480,height=700,scrollbars=yes,resizable=yes')}
                 className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center space-x-2"
               >
                 <Heart className="w-5 h-5" />
                 <span>Donate</span>
-              </a>
+              </button>
               <TurtleLogo className="w-14 h-14 opacity-90" />
             </div>
           </div>
@@ -254,42 +252,42 @@ export default function CharityGolfTournament() {
               <p className="text-xl text-teal-100 mb-8 leading-relaxed">
                 Join us for our annual memorial golf tournament - a 4-person scramble format. Enjoy lunch, dinner, flighted prize money, and most importantly, support families with children who have complex medical conditions. #brynleestrong
               </p>
-              <button
-                onClick={() => {
-                  setRegistrationStep('form');
-                  setTimeout(() => {
-                    document.getElementById('registration')?.scrollIntoView({ behavior: 'smooth' });
-                  }, 0);
-                  setTimeout(async () => {
-                    if (cardMountedRef.current) return;
-                    if (!window.Square) return;
-                    try {
-                      const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
-                      squarePaymentsRef.current = payments;
-                      const card = await payments.card();
-                      await card.attach('#card-container');
-                      squareCardRef.current = card;
-                      cardMountedRef.current = true;
-                      setPaymentError('');
-                    } catch (err) {
-                      console.error('Square init error:', err);
-                      setPaymentError('Could not load payment form. Please refresh and try again.');
-                    }
-                  }, 500);
-                }}
-                className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
-              >
-                Register Now
-              </button>
-              <a
-                href="https://square.link/u/b83OuHC3"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95 border-2 border-white/40"
-              >
-                <Heart className="w-5 h-5 text-fuchsia-300" />
-                <span>Make a Donation</span>
-              </a>
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={() => {
+                    setRegistrationStep('form');
+                    setTimeout(() => {
+                      document.getElementById('registration')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 0);
+                    setTimeout(async () => {
+                      if (cardMountedRef.current) return;
+                      if (!window.Square) return;
+                      try {
+                        const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+                        squarePaymentsRef.current = payments;
+                        const card = await payments.card();
+                        await card.attach('#card-container');
+                        squareCardRef.current = card;
+                        cardMountedRef.current = true;
+                        setPaymentError('');
+                      } catch (err) {
+                        console.error('Square init error:', err);
+                        setPaymentError('Could not load payment form. Please refresh and try again.');
+                      }
+                    }, 500);
+                  }}
+                  className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
+                >
+                  Register Now
+                </button>
+                <button
+                  onClick={() => window.open('https://square.link/u/b83OuHC3', 'donate', 'width=480,height=700,scrollbars=yes,resizable=yes')}
+                  className="inline-flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95 border-2 border-white/40"
+                >
+                  <Heart className="w-5 h-5 text-fuchsia-300" />
+                  <span>Make a Donation</span>
+                </button>
+              </div>
             </div>
             
             <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 shadow-2xl">
