@@ -8,6 +8,14 @@ const TurtleLogo = ({ className = "w-16 h-16" }) => (
   <img src={LOGO_DATA} alt="Brynlee Carter Foundation" className={className} />
 );
 
+// ─── TOGGLE THIS WHEN YOU'RE READY TO ANNOUNCE NEXT YEAR'S TOURNAMENT ───────
+const EVENT_ANNOUNCED = false;
+const EVENT_DATE = "Saturday, September 26, 2026";
+const EVENT_TIME = "11:30 AM Registration • 12:30 PM Tee Off";
+const EVENT_VENUE = "Wolf Hollow Golf Course";
+const EVENT_ADDRESS = "4504 MO-100, Labadie, MO 63055";
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function CharityGolfTournament() {
   const [registrationStep, setRegistrationStep] = useState('closed');
   const [formData, setFormData] = useState({
@@ -247,39 +255,58 @@ export default function CharityGolfTournament() {
                 Annual Memorial Golf Tournament
               </div>
               <h2 className="text-3xl sm:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
-                Join Us for a Day of <span className="text-fuchsia-400">Golf & Giving</span>
+                {EVENT_ANNOUNCED
+                  ? <>Join Us for a Day of <span className="text-fuchsia-400">Golf & Giving</span></>
+                  : <>Supporting Families, <span className="text-fuchsia-400">One Swing at a Time</span></>
+                }
               </h2>
               <p className="text-base sm:text-xl text-teal-100 mb-8 leading-relaxed">
-                Join us for our annual memorial golf tournament - a 4-person scramble format. Enjoy lunch, dinner, flighted prize money, and most importantly, support families with children who have complex medical conditions. #brynleestrong
+                {EVENT_ANNOUNCED
+                  ? "Join us for our annual memorial golf tournament - a 4-person scramble format. Enjoy lunch, dinner, flighted prize money, and most importantly, support families with children who have complex medical conditions. #brynleestrong"
+                  : "Thank you to everyone who joined us this year! Follow us on Facebook to be the first to know when next year's tournament is announced. #brynleestrong"
+                }
               </p>
               <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={() => {
-                    setRegistrationStep('form');
-                    setTimeout(() => {
-                      document.getElementById('registration')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 0);
-                    setTimeout(async () => {
-                      if (cardMountedRef.current) return;
-                      if (!window.Square) return;
-                      try {
-                        const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
-                        squarePaymentsRef.current = payments;
-                        const card = await payments.card();
-                        await card.attach('#card-container');
-                        squareCardRef.current = card;
-                        cardMountedRef.current = true;
-                        setPaymentError('');
-                      } catch (err) {
-                        console.error('Square init error:', err);
-                        setPaymentError('Could not load payment form. Please refresh and try again.');
-                      }
-                    }, 500);
-                  }}
-                  className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
-                >
-                  Register Now
-                </button>
+                {EVENT_ANNOUNCED && (
+                  <button
+                    onClick={() => {
+                      setRegistrationStep('form');
+                      setTimeout(() => {
+                        document.getElementById('registration')?.scrollIntoView({ behavior: 'smooth' });
+                      }, 0);
+                      setTimeout(async () => {
+                        if (cardMountedRef.current) return;
+                        if (!window.Square) return;
+                        try {
+                          const payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+                          squarePaymentsRef.current = payments;
+                          const card = await payments.card();
+                          await card.attach('#card-container');
+                          squareCardRef.current = card;
+                          cardMountedRef.current = true;
+                          setPaymentError('');
+                        } catch (err) {
+                          console.error('Square init error:', err);
+                          setPaymentError('Could not load payment form. Please refresh and try again.');
+                        }
+                      }, 500);
+                    }}
+                    className="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
+                  >
+                    Register Now
+                  </button>
+                )}
+                {!EVENT_ANNOUNCED && (
+                  <a
+                    href="https://www.facebook.com/profile.php?id=100072358680569"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <span>Follow Us for Updates</span>
+                  </a>
+                )}
                 <button
                   onClick={() => window.open('https://square.link/u/b83OuHC3', '_blank', 'width=480,height=700,scrollbars=yes,resizable=yes')}
                   className="inline-flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-2xl transform transition hover:scale-105 active:scale-95 border-2 border-white/40"
@@ -290,35 +317,56 @@ export default function CharityGolfTournament() {
               </div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-md p-5 sm:p-8 rounded-2xl border border-white/20 shadow-2xl">
-              <h3 className="text-2xl font-bold mb-6 flex items-center">
-                <Calendar className="w-6 h-6 mr-3 text-fuchsia-400" />
-                Event Details
-              </h3>
-              <div className="space-y-4 text-lg">
-                <div className="flex items-start">
-                  <Calendar className="w-5 h-5 mr-3 mt-1 text-teal-300 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold">Saturday, September 26, 2026</div>
-                    <div className="text-teal-200">11:30 AM Registration • 12:30 PM Tee Off</div>
+            {EVENT_ANNOUNCED ? (
+              <div className="bg-white/10 backdrop-blur-md p-5 sm:p-8 rounded-2xl border border-white/20 shadow-2xl">
+                <h3 className="text-2xl font-bold mb-6 flex items-center">
+                  <Calendar className="w-6 h-6 mr-3 text-fuchsia-400" />
+                  Event Details
+                </h3>
+                <div className="space-y-4 text-lg">
+                  <div className="flex items-start">
+                    <Calendar className="w-5 h-5 mr-3 mt-1 text-teal-300 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold">{EVENT_DATE}</div>
+                      <div className="text-teal-200">{EVENT_TIME}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start">
-                  <MapPin className="w-5 h-5 mr-3 mt-1 text-teal-300 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold">Wolf Hollow Golf Course</div>
-                    <div className="text-teal-200">4504 MO-100, Labadie, MO 63055</div>
+                  <div className="flex items-start">
+                    <MapPin className="w-5 h-5 mr-3 mt-1 text-teal-300 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold">{EVENT_VENUE}</div>
+                      <div className="text-teal-200">{EVENT_ADDRESS}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start">
-                  <Users className="w-5 h-5 mr-3 mt-1 text-teal-300 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold">Limited to 36 Teams</div>
-                    <div className="text-teal-200">Register your foursome today</div>
+                  <div className="flex items-start">
+                    <Users className="w-5 h-5 mr-3 mt-1 text-teal-300 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold">Limited to 36 Teams</div>
+                      <div className="text-teal-200">Register your foursome today</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white/10 backdrop-blur-md p-5 sm:p-8 rounded-2xl border border-white/20 shadow-2xl text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Stay in the Loop</h3>
+                <p className="text-teal-100 mb-6 text-lg leading-relaxed">
+                  Follow us on Facebook to be the first to know when next year's tournament is announced — including dates, registration, and sponsorship opportunities.
+                </p>
+                <a
+                  href="https://www.facebook.com/profile.php?id=100072358680569"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  <span>Follow Us on Facebook</span>
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -352,7 +400,7 @@ export default function CharityGolfTournament() {
       </section>
 
       {/* Registration Section */}
-      <section id="registration" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      {EVENT_ANNOUNCED && <section id="registration" className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {registrationStep === 'closed' && (
             <div className="text-center">
@@ -774,7 +822,7 @@ export default function CharityGolfTournament() {
             </div>
           )}
         </div>
-      </section>
+      </section>}
 
       {/* Sponsorship Benefits */}
       <section className="py-16 bg-gradient-to-br from-teal-800 to-teal-600 text-white">
@@ -849,6 +897,12 @@ export default function CharityGolfTournament() {
                 <li><a href="#" className="hover:text-white transition">Our Impact</a></li>
                 <li><a href="#" className="hover:text-white transition">Past Tournaments</a></li>
                 <li><a href="https://square.link/u/b83OuHC3" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Donate</a></li>
+                <li>
+                  <a href="https://www.facebook.com/profile.php?id=100072358680569" target="_blank" rel="noopener noreferrer" className="hover:text-white transition inline-flex items-center space-x-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <span>Follow on Facebook</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
