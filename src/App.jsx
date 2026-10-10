@@ -8,6 +8,12 @@ const TurtleLogo = ({ className = "w-16 h-16" }) => (
   <img src={LOGO_DATA} alt="Brynlee Carter Foundation" className={className} />
 );
 
+// ─── SPONSORSHIP LIMITS (set to null for unlimited) ─────────────────────────
+const SPONSORSHIP_LIMITS = {
+  cart: 3,
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ─── TOGGLE THIS WHEN YOU'RE READY TO ANNOUNCE NEXT YEAR'S TOURNAMENT ───────
 const EVENT_ANNOUNCED = false;
 const EVENT_DATE = "Saturday, September 26, 2026";
@@ -33,6 +39,26 @@ export default function CharityGolfTournament() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [soldOutLevels, setSoldOutLevels] = useState({});
+
+  useEffect(() => {
+    if (registrationStep !== 'form') return;
+    const checkLimits = async () => {
+      const levels = Object.keys(SPONSORSHIP_LIMITS);
+      const counts = {};
+      await Promise.all(levels.map(async (level) => {
+        try {
+          const res = await fetch(`https://sheetdb.io/api/v1/ts1jfrfo6a9ig/search?Sponsorship%20Level=${level}`);
+          const rows = await res.json();
+          counts[level] = Array.isArray(rows) ? rows.length >= SPONSORSHIP_LIMITS[level] : false;
+        } catch {
+          counts[level] = false;
+        }
+      }));
+      setSoldOutLevels(counts);
+    };
+    checkLimits();
+  }, [registrationStep]);
   const squareCardRef = useRef(null);
   const squarePaymentsRef = useRef(null);
   const cardMountedRef = useRef(false);
@@ -140,12 +166,13 @@ export default function CharityGolfTournament() {
         }
 
         // Step 3: Write to Sheets only after confirmed charge
+        const isSponsor = !['foursome', 'dinner'].includes(baseData.sponsorshipLevel);
         await fetch('https://sheetdb.io/api/v1/ts1jfrfo6a9ig', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             data: {
-              'Team Name': baseData.teamName,
+              'Team Name': isSponsor ? '' : baseData.teamName,
               'Captain Name': baseData.captainName,
               'Email': baseData.captainEmail,
               'Phone': baseData.captainPhone,
@@ -153,7 +180,7 @@ export default function CharityGolfTournament() {
               'Player 3': baseData.player3Name,
               'Player 4': baseData.player4Name,
               'Sponsorship Level': baseData.sponsorshipLevel,
-              'Sponsorship Name': baseData.sponsorshipName,
+              'Sponsorship Name': isSponsor ? baseData.teamName : baseData.sponsorshipName,
               'Amount': baseData.amount,
               'Payment Method': baseData.paymentMethod,
               'Payment Status': 'Paid',
@@ -170,12 +197,13 @@ export default function CharityGolfTournament() {
 
       } else {
         // Pay on-site: write to Sheets directly
+        const isSponsor = !['foursome', 'dinner'].includes(baseData.sponsorshipLevel);
         await fetch('https://sheetdb.io/api/v1/ts1jfrfo6a9ig', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             data: {
-              'Team Name': baseData.teamName,
+              'Team Name': isSponsor ? '' : baseData.teamName,
               'Captain Name': baseData.captainName,
               'Email': baseData.captainEmail,
               'Phone': baseData.captainPhone,
@@ -183,7 +211,7 @@ export default function CharityGolfTournament() {
               'Player 3': baseData.player3Name,
               'Player 4': baseData.player4Name,
               'Sponsorship Level': baseData.sponsorshipLevel,
-              'Sponsorship Name': baseData.sponsorshipName,
+              'Sponsorship Name': isSponsor ? baseData.teamName : baseData.sponsorshipName,
               'Amount': baseData.amount,
               'Payment Method': baseData.paymentMethod,
               'Payment Status': 'Pay On-Site',
@@ -439,13 +467,17 @@ export default function CharityGolfTournament() {
                     Registration Type
                   </label>
                   <div className="space-y-3">
-                    {Object.entries(sponsorshipLevels).map(([key, level]) => (
+                    {Object.entries(sponsorshipLevels).map(([key, level]) => {
+                      const isSoldOut = soldOutLevels[key] === true;
+                      return (
                       <label
                         key={key}
-                        className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          formData.sponsorshipLevel === key
-                            ? 'border-teal-600 bg-teal-50'
-                            : 'border-gray-200 hover:border-teal-300'
+                        className={`flex items-center justify-between p-4 border-2 rounded-xl transition-all ${
+                          isSoldOut
+                            ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                            : formData.sponsorshipLevel === key
+                            ? 'border-teal-600 bg-teal-50 cursor-pointer'
+                            : 'border-gray-200 hover:border-teal-300 cursor-pointer'
                         }`}
                       >
                         <div className="flex items-center">
@@ -455,10 +487,16 @@ export default function CharityGolfTournament() {
                             value={key}
                             checked={formData.sponsorshipLevel === key}
                             onChange={handleInputChange}
+                            disabled={isSoldOut}
                             className="w-5 h-5 text-teal-600"
                           />
                           <div className="ml-4">
-                            <div className="font-semibold text-gray-900">{level.name}</div>
+                            <div className="font-semibold text-gray-900 flex items-center gap-2">
+                              {level.name}
+                              {isSoldOut && (
+                                <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Sold Out</span>
+                              )}
+                            </div>
                             <div className="text-sm text-gray-600">{level.description}</div>
                           </div>
                         </div>
@@ -466,7 +504,8 @@ export default function CharityGolfTournament() {
                           ${level.price}
                         </div>
                       </label>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
