@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, MapPin, Users, Trophy, Heart, CheckCircle, DollarSign, Mail, Phone, User } from 'lucide-react';
 
 // Brynlee Carter Foundation Logo (base64 embedded)
